@@ -10,13 +10,13 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'maven:3.8.3-slim'
+                    image 'maven:3.6.3-slim'
                     // 挂载在宿主机上，复用依赖文件
                     args '-v /root/.m2:/root/.m2'
                 }
             }
             steps {
-                sh 'sh ./jenkins/scripts/build.sh'
+                sh 'sh ./.jenkins/build.sh'
                 // 暂存 Jar 包，避免不同 agent 下取不到文件
                 stash includes: '**/target/*.jar', name: 'jar'
             }
@@ -25,7 +25,7 @@ pipeline {
         // 单元测试
         stage('Test') {
             steps {
-                sh 'sh ./jenkins/scripts/test.sh'
+                sh 'sh ./.jenkins/test.sh'
             }
         }
 
@@ -38,7 +38,7 @@ pipeline {
             }
             steps {
                 unstash 'jar'
-                sh 'sh ./jenkins/scripts/deploy.sh'
+                sh 'sh ./.jenkins/deploy.sh'
             }
             post {
                 failure {
